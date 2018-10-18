@@ -5,7 +5,8 @@ import sys
 c = 3000 #km/s
 window = (512,512)
 vert_dist = 1 * c #kilometers
-mpp = vert_dist/window[1] #kilometersperpixel to make every window scaled uniformly
+scale = 1
+mpp = vert_dist/window[1] * scale #kilometersperpixel to make every window scaled uniformly * scale
 observer = (int(window[0]/2),0) #observer position always top middle
 
 #define shape in kilometers in space
@@ -32,8 +33,9 @@ def mapPoint(coord):
 def transformCoordinate(x):
     return (x[0],-x[1])
 
+#transforms relative pos to absolute pos relative to coordinate space
 def findAbsolutePos(x):
-    return (x[0] + ,
+    return (x[0] - observer[0] * mpp, x[1])
 
 #SEGMENTED POINTS MADE HERE
 #transforms shape into intself with more verticies
@@ -49,6 +51,7 @@ for vertex in range(len(shape)-1):
         print([x,m*x+b])
 
 #main loop
+#TODO fix main loop like in class
 img = np.ones((window[0],window[1])) * 255
 #TODO show where observer is
 for pixelDisplacement in range(pos[0],2 * (observer[0] - pos[0]),5):
