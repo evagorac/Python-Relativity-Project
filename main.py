@@ -5,13 +5,13 @@ import sys
 c = 3000 #km/s
 window = (512,512)
 vert_dist = 1 * c #kilometers
-mpp = vert_dist/window[1] * .3 #kilometersperpixel * percent dist of height
-origin = (int(window[0]/2),int(window[1]))
+mpp = vert_dist/window[1] #kilometersperpixel to make every window scaled uniformly
+observer = (int(window[0]/2),0) #observer position always top middle
 
-#define shape in pixels in normal coordinate space
-shape = np.array([[0,0],[120,200]], np.int32)
-shape = shape * mpp
-print("shape before :" + str(shape))
+#define shape in kilometers in space
+shape = np.array([[0,0],[.1*c,.2*c]], np.int32)
+shape = shape / mpp
+#shape is now defined in pixels
 
 #finds lowest point to define what distance refers to
 lowestH = shape[0]
@@ -20,18 +20,23 @@ for x in shape:
         lowestH = x
 
 #define constants
-pos = (0,0) #inital starting position
+pos = (-c,c) #inital starting position in kilometers relative to observer
 rapidity = .8
 
 #equation derived
 def mapPoint(coord):
     return ((-coord[0] * rapidity**2 - rapidity*(coord[0]**2 + coord[1]**2 - rapidity**2 * coord[1]**2)**.5)/(rapidity**2 - 1), coord[1])
 
-#used to change from normal frame to inverted y frame
+#used to change from normal frame to inverted y frame\
+#not used
 def transformCoordinate(x):
     return (x[0],-x[1])
 
+def findAbsolutePos(x):
+    return (x[0] + ,
+
 #SEGMENTED POINTS MADE HERE
+#transforms shape into intself with more verticies
 segmented_values = []
 for vertex in range(len(shape)-1):
     v1 = shape[vertex]
@@ -44,9 +49,9 @@ for vertex in range(len(shape)-1):
         print([x,m*x+b])
 
 #main loop
-#DEFINED IN NORMAL COORDINATE SPACE
 img = np.ones((window[0],window[1])) * 255
-for pixelDisplacement in range(pos[0],2 * (origin[0] - pos[0]),5):
+#TODO show where observer is
+for pixelDisplacement in range(pos[0],2 * (observer[0] - pos[0]),5):
     dx = (pixelDisplacement * mpp)/2
     transformed = []
     for x in segmented_values:
