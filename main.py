@@ -34,11 +34,12 @@ def transformCoordinate(x):
     return (x[0],-x[1])
 
 #transforms relative pos to absolute pos relative to coordinate space
+#TODO check this to make sure its correct
 def findAbsolutePos(x):
     return (x[0] - observer[0] * mpp, x[1])
 
 #SEGMENTED POINTS MADE HERE
-#transforms shape into intself with more verticies
+#transforms shape into intself with more verticies to show curves perceived
 segmented_values = []
 for vertex in range(len(shape)-1):
     v1 = shape[vertex]
@@ -50,11 +51,15 @@ for vertex in range(len(shape)-1):
         segmented_values.append((x,m*x+b))
         print([x,m*x+b])
 
-#main loop
-#TODO fix main loop like in class
 img = np.ones((window[0],window[1])) * 255
 #TODO show where observer is
-for pixelDisplacement in range(pos[0],2 * (observer[0] - pos[0]),5):
+
+#reassign pos in terms of absolute coordinates
+pos = findAbsolutePos(pos)
+
+#main loop
+#TODO fix the main loop like in class
+for pixelDisplacement in range(pos[0]/mpp,(2 * (observer[0] - pos[0]))/mpp,5):
     dx = (pixelDisplacement * mpp)/2
     transformed = []
     for x in segmented_values:
@@ -95,11 +100,3 @@ print("ok")
         cv2.destroyAllWindows()
         sys.exit()
 """
-
-
-
-
-
-
-
-#use linspace
