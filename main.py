@@ -10,7 +10,7 @@ mpp = vert_dist/window[1] * scale #kilometersperpixel to make every window scale
 observer = (int(window[0]/2),0) #observer position always top middle
 
 #define shape in kilometers in space
-shape = np.array([[0,0],[.1*c,.2*c]], np.int32)
+shape = np.array([[0,0],[.1*c,.2*c],[.4*c,.2*c],[.3*c,0]], np.int32)
 shape = shape / mpp
 #shape is now defined in pixels
 
@@ -65,7 +65,7 @@ for pixelDisplacement in range(int(pos[0]/mpp),int((2 * (observer[0] - pos[0]))/
     for x in segmented_values:
         #map point and transform into image display frame
         transformed.append(transformCoordinate(mapPoint((x[0]+dx,x[1]-lowestH[1]))))
-    copy = img
+    copy = np.copy(img)
     for x in range(len(transformed)-1):
         v1 = transformed[x]
         v2 = transformed[x+1]
