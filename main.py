@@ -1,16 +1,17 @@
 import cv2
 import numpy as np
 import sys
+import time
 
 c = 3000 #km/s
 window = (512,512)
 vert_dist = 1 * c #kilometers
-scale = 1
+scale = 2
 mpp = vert_dist/window[1] * scale #kilometersperpixel to make every window scaled uniformly * scale
 observer = (int(window[0]/2),0) #observer position always top middle
 
 #define shape in kilometers in space
-shape = np.array([[0,0],[.1*c,.2*c],[.4*c,.2*c],[.3*c,0]], np.int32)
+shape = np.array([[0,0],[.25*c,.5*c]], np.int32)
 shape = shape / mpp
 #shape is now defined in pixels
 
@@ -21,7 +22,7 @@ for x in shape:
         lowestH = x
 
 #define constants
-pos = (-c,c) #inital starting position in kilometers relative to observer
+pos = (-2 * c,c) #inital starting position in kilometers relative to observer
 rapidity = .8
 
 #equation derived
@@ -59,23 +60,37 @@ pos = findAbsolutePos(pos)
 
 #main loop
 #TODO fix the main loop like in class
-for pixelDisplacement in range(int(pos[0]/mpp),int((2 * (observer[0] - pos[0]))/mpp),5):
-    dx = (pixelDisplacement * mpp)/2
+for pixelDisplacement in range(int(pos[0]/mpp),int(2 * (observer[0] * mpp - pos[0])/mpp),10):
+    dx = (pixelDisplacement * mpp)
+#    print("pos[0]: {}\npos[1]: {}\ndx: {}".format(pos[0],pos[1],dx))
     transformed = []
     for x in segmented_values:
         #map point and transform into image display frame
-        transformed.append(transformCoordinate(mapPoint((x[0]+dx,x[1]-lowestH[1]))))
+        q = mapPoint((x[0]+dx,x[1]))
+        transformed.append(mapPoint(q))
+        print(q)
+
     copy = np.copy(img)
     for x in range(len(transformed)-1):
         v1 = transformed[x]
         v2 = transformed[x+1]
-        print("shape after :" + str([v1[0],v1[1],v2[0],v2[1]]))
         cv2.line(copy, (int(v2[1]/mpp),int(v1[1]/mpp)), (int(v2[0]/mpp),int(v1[0]/mpp)), (0,0,0), 1)
         cv2.imshow('test',copy)
         key = cv2.waitKey(2)
         if (key == ord("q")):
             cv2.destroyAllWindows()
             sys.exit()
+# copy = np.copy(img)
+# for x in range(len(segmented_values)-1):
+#     v1 = segmented_values[x]
+#     v2 = segmented_values[x+1]
+#     print("shape after :" + str([v1[0],v1[1],v2[0],v2[1]]))
+#     cv2.line(copy, (int(v2[1]/mpp),int(v1[1]/mpp)), (int(v2[0]/mpp),int(v1[0]/mpp)), (0,0,0), 1)
+#     cv2.imshow('test',copy)
+#     key = cv2.waitKey(2)
+#     if (key == ord("q")):
+#         cv2.destroyAllWindows()
+#         sys.exit()
 
 
 print("ok")
