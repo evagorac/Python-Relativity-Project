@@ -59,7 +59,7 @@ pos = findAbsolutePos(pos)
 
 #main loop
 #TODO fix the main loop like in class
-for pixelDisplacement in range(pos[0]/mpp,(2 * (observer[0] - pos[0]))/mpp,5):
+for pixelDisplacement in range(int(pos[0]/mpp),int((2 * (observer[0] - pos[0]))/mpp),5):
     dx = (pixelDisplacement * mpp)/2
     transformed = []
     for x in segmented_values:
