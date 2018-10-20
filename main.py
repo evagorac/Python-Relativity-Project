@@ -7,7 +7,7 @@ rapidity = .9
 window = (512,512)
 
 #relative to observer
-xRange = (-10*c,5*c)
+xRange = (-10*c,10*c)
 yRange = (-5*c,5*c)
 
 #define kilometers per pixel in each direction
@@ -19,12 +19,13 @@ vOffset = (yRange[0]+yRange[1])/2/yKmpp
 
 #always center relative to coordinate axis
 observer = np.array([[int(window[0]/2 + hOffset) * xKmpp,int(window[1]/2 + vOffset) * yKmpp]])
+print(observer)
 
 #define shape in kilometers in space
-shape = np.array([[0.,0.],[.5*c,3*c]])
+shape = np.array([[0.,0.],[-3*c,-3*c]])
 
 #inital starting position in kilometers relative to observer
-startingPos = np.array([-4*c,1*c])
+startingPos = np.array([-20*c,-1*c])
 
 #defines shape relative to observer
 shape[:] += startingPos[:]
@@ -59,17 +60,19 @@ for vertex in range(len(shape)-1):
         #print([x,m*x+b])
 
 img = np.ones((window[0],window[1])) * 255
-cv2.rectangle(img,(int(window[0]/2-4 - hOffset),int(window[1]/2-4 - vOffset)),(int(window[0]/2+4 - hOffset),int(window[1]/2+4 - vOffset)),(0,0,0),2)
+cv2.rectangle(img,(int(observer[0][0]/xKmpp-4),int(observer[0][1]/yKmpp-4)),(int(observer[0][0]/xKmpp+4),int(observer[0][1]/yKmpp+4)),(0,0,0),2)
 
 #main loop
 #TODO fix the main loop like in class
-for dx in range(int(startingPos[0] + observer[0][0]),int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 250)):
+#for dx in range(int(startingPos[0] + observer[0][0]),3 * int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 250)):
+for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)):
+    print(dx)
     perceivedCoords = []
     for x in segmented_values:
         #map point and transform into image display frame
         q = findOffset((x[0]+dx,x[1]))
-        print(dx)
-        print("MAPPED OFFSET WRT OBSERVER: \n" + str(q))
+        #print(dx)
+        #print("MAPPED OFFSET WRT OBSERVER: \n" + str(q))
         perceivedCoords.append((x[0]+q+dx,x[1]))
 
     transformedCoords = transformShape(np.array(perceivedCoords))
