@@ -3,11 +3,11 @@ import numpy as np
 import sys
 
 c = 3000 #km/s
-rapidity = .6
+rapidity = .8
 window = (512,512)
 
 #relative to observer
-xRange = (-5*c,5*c)
+xRange = (-10*c,10*c)
 yRange = (-5*c,5*c)
 
 #define kilometers per pixel in each direction
@@ -18,10 +18,10 @@ yKmpp = (yRange[1] - yRange[0])/window[1]
 observer = np.array([[int(window[0]/2) * xKmpp,int(window[1]/2) * yKmpp]])
 
 #define shape in kilometers in space
-shape = np.array([[0.,0.],[2*c,3*c]])
+shape = np.array([[0.,0.],[.1*c,-3*c]])
 
 #inital starting position in kilometers relative to observer
-startingPos = np.array([-4*c,4*c])
+startingPos = np.array([-4*c,-1*c])
 
 #defines shape relative to observer
 shape[:] += startingPos[:]
@@ -32,7 +32,6 @@ def transformShape(x):
     #print(shape)
     a[:,0] /= (2 * xKmpp)
     a[:,1] /= (2 * yKmpp)
-    print("VALUE OF " + str(a))
     a[:,0] += window[0]/2
     a[:,1] += window[1]/2
     #print(shape)
@@ -57,29 +56,30 @@ for vertex in range(len(shape)-1):
         #print([x,m*x+b])
 
 img = np.ones((window[0],window[1])) * 255
-#TODO show where observer is
+cv2.rectangle(img,(int(window[0]/2-4),int(window[1]/2-4)),(int(window[0]/2+4),int(window[1]/2+4)),(0,0,0),2)
 
 #main loop
 #TODO fix the main loop like in class
-for dx in range(int(startingPos[0]),int(-startingPos[0]),int(-2 * startingPos[0] / 100)):
+for dx in range(int(startingPos[0] + observer[0][0]),int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 50)):
     #print("pos[0]: {}\npos[1]: {}\ndx: {}".format(pos[0],pos[1],dx))
     perceivedCoords = []
     for x in segmented_values:
         #map point and transform into image display frame
         q = mapPoint((x[0]+dx,x[1]))
-        print(q)
+        print(dx)
+        print("MAPPED POINT WRT OBSERVER: \n" + str(q))
         perceivedCoords.append(mapPoint(q))
 
     transformedCoords = transformShape(np.array(perceivedCoords))
-    print(transformedCoords)
+    # print("POINT ON WINDOW: \n " + str(transformedCoords) + "\n\n")
 
     copy = np.copy(img)
     for x in range(len(transformedCoords)-1):
         v1 = transformedCoords[x]
         v2 = transformedCoords[x+1]
-        print((int(v2[0]) , int(v2[1])))
-        print((int(v1[0]) , int(v1[1])))
-        print("\n")
+        # print((int(v2[0]) , int(v2[1])))
+        # print((int(v1[0]) , int(v1[1])))
+        # print("\n")
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
         cv2.imshow('test',copy)
