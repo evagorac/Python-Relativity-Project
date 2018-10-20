@@ -60,7 +60,7 @@ cv2.rectangle(img,(int(window[0]/2-4),int(window[1]/2-4)),(int(window[0]/2+4),in
 
 #main loop
 #TODO fix the main loop like in class
-for dx in range(int(startingPos[0] + observer[0][0]),int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 50)):
+for dx in range(int(startingPos[0] + observer[0][0]),int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 250)):
     #print("pos[0]: {}\npos[1]: {}\ndx: {}".format(pos[0],pos[1],dx))
     perceivedCoords = []
     for x in segmented_values:
@@ -80,13 +80,13 @@ for dx in range(int(startingPos[0] + observer[0][0]),int(-startingPos[0] + obser
         # print((int(v2[0]) , int(v2[1])))
         # print((int(v1[0]) , int(v1[1])))
         # print("\n")
+        #cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
-        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
-        cv2.imshow('test',copy)
-        key = cv2.waitKey(2)
-        if (key == ord("q")):
-            cv2.destroyAllWindows()
-            sys.exit()
+    cv2.imshow('test',copy)
+    key = cv2.waitKey(2)
+    if (key == ord("q")):
+        cv2.destroyAllWindows()
+        sys.exit()
 # copy = np.copy(img)
 # for x in range(len(segmented_values)-1):
 #     v1 = segmented_values[x]
