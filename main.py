@@ -1,46 +1,45 @@
 import cv2
 import numpy as np
 import sys
-import time
 
 c = 3000 #km/s
+rapidity = .8
 window = (512,512)
-vert_dist = 1 * c #kilometers
-scale = 2
-mpp = vert_dist/window[1] * scale #kilometersperpixel to make every window scaled uniformly * scale
-observer = (int(window[0]/2),0) #observer position always top middle
+
+#relative to observer
+xRange = (-2*c,2*c)
+yRange = (-2*c,2*c)
+
+#define kilometers per pixel in each direction
+xKmpp = (xRange[1] - xRange[0])/window[0]
+yKmpp = (yRange[1] - yRange[0])/window[1]
+
+#always center relative to coordinate axis
+observer = np.array([int(window[0]/2) * xKmpp,int(window[1]/2) * yKmpp])
 
 #define shape in kilometers in space
 shape = np.array([[0,0],[.25*c,.5*c]], np.int32)
-shape = shape / mpp
-#shape is now defined in pixels
 
-#finds lowest point to define what distance refers to
-lowestH = shape[0]
-for x in shape:
-    if x[1] < lowestH[1]:
-        lowestH = x
+#inital starting position in kilometers relative to observer
+startingPos = np.array([-2 * c,c])
 
-#define constants
-pos = (-2 * c,c) #inital starting position in kilometers relative to observer
-rapidity = .8
+#defines shape relative to observer
+shape[:] += startingPos[:]
+
+#takes shape relative to observer and fits it into the window
+def transformShape(x):
+    shape = np.copy(x)
+    shape[:,0] /= xKmpp
+    shape[:,1] /= yKmpp
+    shape[:] += observer[:]
+    return shape
 
 #equation derived
 def mapPoint(coord):
     return ((-coord[0] * rapidity**2 - rapidity*(coord[0]**2 + coord[1]**2 - rapidity**2 * coord[1]**2)**.5)/(rapidity**2 - 1), coord[1])
 
-#used to change from normal frame to inverted y frame\
-#not used
-def transformCoordinate(x):
-    return (x[0],-x[1])
-
-#transforms relative pos to absolute pos relative to coordinate space
-#TODO check this to make sure its correct
-def findAbsolutePos(x):
-    return (x[0] - observer[0] * mpp, x[1])
-
 #SEGMENTED POINTS MADE HERE
-#transforms shape into intself with more verticies to show curves perceived
+#transforms shape into itself with more verticies to show curves perceived
 segmented_values = []
 for vertex in range(len(shape)-1):
     v1 = shape[vertex]
@@ -50,31 +49,33 @@ for vertex in range(len(shape)-1):
     segmented_x_values = np.linspace(v1[0],v2[0],num = 10)
     for x in segmented_x_values:
         segmented_values.append((x,m*x+b))
-        print([x,m*x+b])
+        #print([x,m*x+b])
 
 img = np.ones((window[0],window[1])) * 255
 #TODO show where observer is
 
-#reassign pos in terms of absolute coordinates
-pos = findAbsolutePos(pos)
-
 #main loop
 #TODO fix the main loop like in class
-for pixelDisplacement in range(int(pos[0]/mpp),int(2 * (observer[0] * mpp - pos[0])/mpp),10):
-    dx = (pixelDisplacement * mpp)
-#    print("pos[0]: {}\npos[1]: {}\ndx: {}".format(pos[0],pos[1],dx))
-    transformed = []
+for dx in range(int(startingPos[0]),int(-startingPos[0]),int(-2 * startingPos[0] / 10)):
+    #print("pos[0]: {}\npos[1]: {}\ndx: {}".format(pos[0],pos[1],dx))
+    perceivedCoords = []
     for x in segmented_values:
         #map point and transform into image display frame
         q = mapPoint((x[0]+dx,x[1]))
-        transformed.append(mapPoint(q))
-        print(q)
+        perceivedCoords.append(mapPoint(q))
+
+    transformedCoords = transformShape(np.array(perceivedCoords))
+    print(transformedCoords)
 
     copy = np.copy(img)
-    for x in range(len(transformed)-1):
-        v1 = transformed[x]
-        v2 = transformed[x+1]
-        cv2.line(copy, (int(v2[1]/mpp),int(v1[1]/mpp)), (int(v2[0]/mpp),int(v1[0]/mpp)), (0,0,0), 1)
+    for x in range(len(transformedCoords)-1):
+        v1 = transformedCoords[x]
+        v2 = transformedCoords[x+1]
+        print(type(int(v2[1])))
+        print(type(int(v1[1])))
+        print(type(int(v2[0])))
+        print(type(int(v1[0])))
+        cv2.line(copy, int(v2[1]), int(v1[1]), int(v2[0]), int(v1[0]), (0,0,0), 1)
         cv2.imshow('test',copy)
         key = cv2.waitKey(2)
         if (key == ord("q")):
