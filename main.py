@@ -8,24 +8,26 @@ window = (512,512)
 
 #relative to observer
 xRange = (-10*c,10*c)
-yRange = (-5*c,5*c)
+yRange = (-.1*c,5*c)
 
 #define kilometers per pixel in each direction
 xKmpp = (xRange[1] - xRange[0])/window[0]
 yKmpp = (yRange[1] - yRange[0])/window[1]
 
-hOffset = (xRange[0]+xRange[1])/2/xKmpp
+hOffset = -(xRange[0]+xRange[1])/2/xKmpp
 vOffset = (yRange[0]+yRange[1])/2/yKmpp
 
 #always center relative to coordinate axis
 observer = np.array([[int(window[0]/2 + hOffset) * xKmpp,int(window[1]/2 + vOffset) * yKmpp]])
 print(observer)
+print(hOffset)
+print(vOffset)
 
 #define shape in kilometers in space
-shape = np.array([[0.,0.],[-3*c,-3*c]])
+shape = np.array([[0.,0.],[-3*c,-3*c],[6*c,-3*c],[6*c,0],[0,0]])
 
 #inital starting position in kilometers relative to observer
-startingPos = np.array([-20*c,-1*c])
+startingPos = np.array([-10*c,-1*c])
 
 #defines shape relative to observer
 shape[:] += startingPos[:]
@@ -36,8 +38,8 @@ def transformShape(x):
     #print(shape)
     a[:,0] /= (2 * xKmpp)
     a[:,1] /= (2 * yKmpp)
-    a[:,0] += window[0]/2
-    a[:,1] += window[1]/2
+    a[:,0] += observer[0][0]/xKmpp
+    a[:,1] += observer[0][1]/yKmpp
     #print(shape)
     #print("\n\n\n")
     return a
@@ -52,12 +54,16 @@ segmented_values = []
 for vertex in range(len(shape)-1):
     v1 = shape[vertex]
     v2 = shape[vertex+1]
-    m = (v2[1]-v1[1])/(v2[0]-v1[0])
-    b = v1[1] - (m * v1[0])
-    segmented_x_values = np.linspace(v1[0],v2[0],num = 10)
-    for x in segmented_x_values:
-        segmented_values.append((x,m*x+b))
-        #print([x,m*x+b])
+    if(v1[0]!=v2[0]):
+        m = (v2[1]-v1[1])/(v2[0]-v1[0])
+        b = v1[1] - (m * v1[0])
+        segmented_x_values = np.linspace(v1[0],v2[0],num = 20)
+        for x in segmented_x_values:
+            segmented_values.append((x,m*x+b))
+    else:
+        y_space = np.linspace(v1[1],v2[1],num = 20)
+        for a in y_space:
+            segmented_values.append((v1[0],a))
 
 img = np.ones((window[0],window[1])) * 255
 cv2.rectangle(img,(int(observer[0][0]/xKmpp-4),int(observer[0][1]/yKmpp-4)),(int(observer[0][0]/xKmpp+4),int(observer[0][1]/yKmpp+4)),(0,0,0),2)
@@ -65,8 +71,7 @@ cv2.rectangle(img,(int(observer[0][0]/xKmpp-4),int(observer[0][1]/yKmpp-4)),(int
 #main loop
 #TODO fix the main loop like in class
 #for dx in range(int(startingPos[0] + observer[0][0]),3 * int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 250)):
-for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)):
-    print(dx)
+for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/1000)):
     perceivedCoords = []
     for x in segmented_values:
         #map point and transform into image display frame
