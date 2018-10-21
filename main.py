@@ -3,12 +3,12 @@ import numpy as np
 import sys
 
 c = 3000 #km/s
-rapidity = .7
-window = (750,750)
+rapidity = .8
+window = (1920,1920)
 
 #relative to observer
-xRange = (-5*c,5*c)
-yRange = (0*c,4*c)
+xRange = (-17*c,7*c)
+yRange = (-19*c,5*c)
 
 #define kilometers per pixel in each direction
 xKmpp = (xRange[1] - xRange[0])/window[0]
@@ -58,14 +58,15 @@ shape2 = np.array([
 [-2.7321*c,2.2679*c]
 ])
 
-shape = shape2
+shape = np.copy(shape2)
 
 #contraction
 gamma = 1/(1-rapidity**2)**.5
 shape[:,0] /= gamma
 
 #inital starting position in kilometers relative to observer
-startingPos = np.array([-5*c,-5*c])
+#I just found out that a horizontal offset fucks the whole thing up
+startingPos = np.array([0,-5*c])
 
 #defines shape relative to observer
 shape[:] += startingPos[:]
@@ -104,12 +105,12 @@ for vertex in range(len(shape)-1):
             segmented_values.append((v1[0],a))
 
 img = np.ones((window[0],window[1])) * 255
-cv2.rectangle(img,(int(observer[0][0]/xKmpp-8),int(observer[0][1]/yKmpp-8)),(int(observer[0][0]/xKmpp+8),int(observer[0][1]/yKmpp+8)),(0,0,0),2)
-
+cv2.rectangle(img,(int(observer[0][0]/xKmpp-8),int(observer[0][1]/yKmpp-16)),(int(observer[0][0]/xKmpp+8),int(observer[0][1]/yKmpp)),(0,0,0),2)
+copy = np.copy(img)
 #main loop
 #TODO fix the main loop like in class
-for dx in range(xRange[0],int(window[0]*xKmpp),int(window[0]*xKmpp/500)):
-#for dx in [0,(int((window[0]*xKmpp) - startingPos[0])/2),int(window[0]*xKmpp - startingPos[0])]:
+#for dx in range(2 * xRange[0],int(window[0]*xKmpp + xRange[1]),int(window[0]*xKmpp/500)):
+for dx in [-12000,0,12000]:
     print(dx)
     perceivedCoords = []
     for x in segmented_values:
@@ -131,7 +132,7 @@ for dx in range(xRange[0],int(window[0]*xKmpp),int(window[0]*xKmpp/500)):
     for x in range(len(actualCoords)-1):
         v1 = actualCoords[x]
         v2 = actualCoords[x+1]
-        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
+        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 4)
 
     for x in range(len(transformedCoords)-1):
         v1 = transformedCoords[x]
@@ -139,23 +140,24 @@ for dx in range(xRange[0],int(window[0]*xKmpp),int(window[0]*xKmpp/500)):
         # print((int(v2[0]) , int(v2[1])))
         # print((int(v1[0]) , int(v1[1])))
         # print("\n")
-        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
-    if dx == 0:
+        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (125,255,0) , 4)
+    if dx == -12000:
         cv2.imwrite("1.jpg",copy)
-    elif dx == int(((window[0]*xKmpp) - startingPos[0])/2):
+    elif dx == 0:
         cv2.imwrite("2.jpg",copy)
-    elif dx == int(((window[0]*xKmpp) - startingPos[0])):
+    elif dx == 12000:
         cv2.imwrite("3.jpg",copy)
+    #cv2.imwrite("all.jpg",copy)
     cv2.imshow('I should be doing my college apps right now',copy)
-    # unContracted = np.ones((window[0],window[1])) * 255
-    # still = shape2
-    # still[:] += startingPos[:]
-    # still = transformShape(still)
-    # for x in range(len(still)-1):
-    #     v1 = still[x]
-    #     v2 = still[x+1]
-    #     cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
-    #cv2.imshow("un-contracted image", unContracted)
+    unContracted = np.ones((window[0],window[1])) * 255
+    still = shape2
+    # still[:,0] *= gamma
+    still = transformShape(still)
+    for x in range(len(still)-1):
+        v1 = still[x]
+        v2 = still[x+1]
+        cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
+    cv2.imwrite("un-contracted_image.jpg", unContracted)
     key = cv2.waitKey(2)
     if (key == ord("q")):
         cv2.destroyAllWindows()
