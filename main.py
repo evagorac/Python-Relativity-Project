@@ -4,11 +4,11 @@ import sys
 
 c = 3000 #km/s
 rapidity = .8
-window = (1920,1920)
+window = (960,960)
 
 #relative to observer
-xRange = (-17*c,7*c)
-yRange = (-19*c,5*c)
+xRange = (-10*c,10*c)
+yRange = (0*c,15*c)
 
 #define kilometers per pixel in each direction
 xKmpp = (xRange[1] - xRange[0])/window[0]
@@ -109,8 +109,8 @@ cv2.rectangle(img,(int(observer[0][0]/xKmpp-8),int(observer[0][1]/yKmpp-16)),(in
 copy = np.copy(img)
 #main loop
 #TODO fix the main loop like in class
-#for dx in range(2 * xRange[0],int(window[0]*xKmpp + xRange[1]),int(window[0]*xKmpp/500)):
-for dx in [-12000,0,12000]:
+for dx in range(2 * xRange[0],int(window[0]*xKmpp + xRange[1]),int(window[0]*xKmpp/500)):
+#for dx in [-12000,0,12000]:
     print(dx)
     perceivedCoords = []
     for x in segmented_values:
@@ -140,24 +140,24 @@ for dx in [-12000,0,12000]:
         # print((int(v2[0]) , int(v2[1])))
         # print((int(v1[0]) , int(v1[1])))
         # print("\n")
-        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (125,255,0) , 4)
-    if dx == -12000:
-        cv2.imwrite("1.jpg",copy)
-    elif dx == 0:
-        cv2.imwrite("2.jpg",copy)
-    elif dx == 12000:
-        cv2.imwrite("3.jpg",copy)
+        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,120,0) , 4)
+    # if dx == -12000:
+    #     cv2.imwrite("1.jpg",copy)
+    # elif dx == 0:
+    #     cv2.imwrite("2.jpg",copy)
+    # elif dx == 12000:
+    #     cv2.imwrite("3.jpg",copy)
     #cv2.imwrite("all.jpg",copy)
     cv2.imshow('I should be doing my college apps right now',copy)
-    unContracted = np.ones((window[0],window[1])) * 255
-    still = shape2
+    # unContracted = np.ones((window[0],window[1])) * 255
+    # still = shape2
     # still[:,0] *= gamma
-    still = transformShape(still)
-    for x in range(len(still)-1):
-        v1 = still[x]
-        v2 = still[x+1]
-        cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
-    cv2.imwrite("un-contracted_image.jpg", unContracted)
+    # still = transformShape(still)
+    # for x in range(len(still)-1):
+    #     v1 = still[x]
+    #     v2 = still[x+1]
+    #     cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
+    # cv2.imwrite("un-contracted_image.jpg", unContracted)
     key = cv2.waitKey(2)
     if (key == ord("q")):
         cv2.destroyAllWindows()
