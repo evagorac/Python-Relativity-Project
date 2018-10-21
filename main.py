@@ -3,12 +3,12 @@ import numpy as np
 import sys
 
 c = 3000 #km/s
-rapidity = .9
+rapidity = .8
 window = (750,750)
 
 #relative to observer
-xRange = (-1*c,1*c)
-yRange = (0*c,2*c)
+xRange = (-3*c,3*c)
+yRange = (0*c,4*c)
 
 #define kilometers per pixel in each direction
 xKmpp = (xRange[1] - xRange[0])/window[0]
@@ -21,7 +21,7 @@ vOffset = (yRange[0]+yRange[1])/2/yKmpp
 observer = np.array([[int(window[0]/2 + hOffset) * xKmpp,int(window[1]/2 + vOffset) * yKmpp]])
 
 #define shape in kilometers in space
-shape = np.array([
+shape1 = np.array([
 [0.,-1*c],
 [-0.2245*c,-0.309*c],
 [-0.9511*c,-0.309*c],
@@ -35,11 +35,37 @@ shape = np.array([
 [0.,-1*c],
 ])
 
-def contract(x):
-    gamma = 1/(1-rapidity**2)**.5
+shape2 = np.array([
+[0,0],
+[c,0],
+[c,-2*c],
+[-c,-2*c],
+[-c,0],
+[0,0],
+[0,.5*c],
+[-2*c,.5*c],
+[-2*c,1.5*c],
+[-2*c,.5*c],
+[2*c,.5*c],
+[2*c,-.5*c],
+[2*c,.5*c],
+[0,.5*c],
+[0,3*c],
+[1.7321*c,2*c],
+[2.7321*c,3.7321*c],
+[1.7321*c,2*c],
+[-1.7321*c,4*c],
+[-2.7321*c,2.2679*c]
+])
+
+shape = shape2
+
+#contraction
+gamma = 1/(1-rapidity**2)**.5
+shape[:,0] /= gamma
 
 #inital starting position in kilometers relative to observer
-startingPos = np.array([-3*c,-1*c])
+startingPos = np.array([-5*c,-5*c])
 
 #defines shape relative to observer
 shape[:] += startingPos[:]
@@ -78,7 +104,7 @@ for vertex in range(len(shape)-1):
             segmented_values.append((v1[0],a))
 
 img = np.ones((window[0],window[1])) * 255
-cv2.rectangle(img,(int(observer[0][0]/xKmpp-4),int(observer[0][1]/yKmpp-4)),(int(observer[0][0]/xKmpp+4),int(observer[0][1]/yKmpp+4)),(0,0,0),2)
+cv2.rectangle(img,(int(observer[0][0]/xKmpp-8),int(observer[0][1]/yKmpp-8)),(int(observer[0][0]/xKmpp+8),int(observer[0][1]/yKmpp+8)),(0,0,0),2)
 
 #main loop
 #TODO fix the main loop like in class
@@ -96,13 +122,6 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
     # print("POINT ON WINDOW: \n " + str(transformedCoords) + "\n\n")
 
     copy = np.copy(img)
-    for x in range(len(transformedCoords)-1):
-        v1 = transformedCoords[x]
-        v2 = transformedCoords[x+1]
-        # print((int(v2[0]) , int(v2[1])))
-        # print((int(v1[0]) , int(v1[1])))
-        # print("\n")
-        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
     actualCoords = []
     for x in shape:
         actualCoords.append((x[0]+dx,x[1]))
@@ -111,6 +130,14 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
         v1 = actualCoords[x]
         v2 = actualCoords[x+1]
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
+
+    for x in range(len(transformedCoords)-1):
+        v1 = transformedCoords[x]
+        v2 = transformedCoords[x+1]
+        # print((int(v2[0]) , int(v2[1])))
+        # print((int(v1[0]) , int(v1[1])))
+        # print("\n")
+        cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
 
     cv2.imshow('I should be doing my college apps right now',copy)
     key = cv2.waitKey(2)
