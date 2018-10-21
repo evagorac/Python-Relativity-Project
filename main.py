@@ -8,7 +8,7 @@ window = (960,960)
 
 #relative to observer
 xRange = (-10*c,10*c)
-yRange = (0*c,15*c)
+yRange = (-5*c,15*c)
 
 #define kilometers per pixel in each direction
 xKmpp = (xRange[1] - xRange[0])/window[0]
@@ -148,16 +148,15 @@ for dx in range(2 * xRange[0],int(window[0]*xKmpp + xRange[1]),int(window[0]*xKm
     # elif dx == 12000:
     #     cv2.imwrite("3.jpg",copy)
     #cv2.imwrite("all.jpg",copy)
-    cv2.imshow('I should be doing my college apps right now',copy)
     # unContracted = np.ones((window[0],window[1])) * 255
     # still = shape2
-    # still[:,0] *= gamma
     # still = transformShape(still)
     # for x in range(len(still)-1):
     #     v1 = still[x]
     #     v2 = still[x+1]
     #     cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,0,0) , 2)
-    # cv2.imwrite("un-contracted_image.jpg", unContracted)
+    # cv2.imwrite("un-contracted_image.jpg", unContracted)\
+    cv2.imshow('I should be doing my college apps right now',copy)
     key = cv2.waitKey(2)
     if (key == ord("q")):
         cv2.destroyAllWindows()
