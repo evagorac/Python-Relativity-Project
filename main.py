@@ -3,11 +3,11 @@ import numpy as np
 import sys
 
 c = 3000 #km/s
-rapidity = .8
+rapidity = .7
 window = (750,750)
 
 #relative to observer
-xRange = (-3*c,3*c)
+xRange = (-5*c,5*c)
 yRange = (0*c,4*c)
 
 #define kilometers per pixel in each direction
@@ -108,8 +108,9 @@ cv2.rectangle(img,(int(observer[0][0]/xKmpp-8),int(observer[0][1]/yKmpp-8)),(int
 
 #main loop
 #TODO fix the main loop like in class
-#for dx in range(int(startingPos[0] + observer[0][0]),3 * int(-startingPos[0] + observer[0][0]),int(-2 * startingPos[0] / 250)):
-for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)):
+for dx in range(xRange[0],int(window[0]*xKmpp),int(window[0]*xKmpp/500)):
+#for dx in [0,(int((window[0]*xKmpp) - startingPos[0])/2),int(window[0]*xKmpp - startingPos[0])]:
+    print(dx)
     perceivedCoords = []
     for x in segmented_values:
         #map point and transform into image display frame
@@ -122,6 +123,7 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
     # print("POINT ON WINDOW: \n " + str(transformedCoords) + "\n\n")
 
     copy = np.copy(img)
+
     actualCoords = []
     for x in shape:
         actualCoords.append((x[0]+dx,x[1]))
@@ -138,6 +140,12 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
         # print((int(v1[0]) , int(v1[1])))
         # print("\n")
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
+    if dx == 0:
+        cv2.imwrite("1.jpg",copy)
+    elif dx == int(((window[0]*xKmpp) - startingPos[0])/2):
+        cv2.imwrite("2.jpg",copy)
+    elif dx == int(((window[0]*xKmpp) - startingPos[0])):
+        cv2.imwrite("3.jpg",copy)
     cv2.imshow('I should be doing my college apps right now',copy)
     # unContracted = np.ones((window[0],window[1])) * 255
     # still = shape2
@@ -152,38 +160,6 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
     if (key == ord("q")):
         cv2.destroyAllWindows()
         sys.exit()
-# copy = np.copy(img)
-# for x in range(len(segmented_values)-1):
-#     v1 = segmented_values[x]
-#     v2 = segmented_values[x+1]
-#     print("shape after :" + str([v1[0],v1[1],v2[0],v2[1]]))
-#     cv2.line(copy, (int(v2[1]/mpp),int(v1[1]/mpp)), (int(v2[0]/mpp),int(v1[0]/mpp)), (0,0,0), 1)
-#     cv2.imshow('test',copy)
-#     key = cv2.waitKey(2)
-#     if (key == ord("q")):
-#         cv2.destroyAllWindows()
-#         sys.exit()
 
 
 print("ok")
-
-"""
-    for x in range(len(transformed)-1):
-        copy = img
-        v1 = transformed[x]
-        v2 = transformed[x+1]
-        cv2.line(copy, (int(v2[1]),int(v1[1])), (int(v2[0]),int(v1[0])), (0,0,0), 4)
-        cv2.imshow('test',copy)
-        key = cv2.waitKey(2)
-        if (key == ord("q")):
-            cv2.destroyAllWindows()
-            sys.exit()
-"""
-"""
-    cv2.polylines(img,transformed,True,(0,255,255),1)
-    cv2.imshow('test',copy)
-    key = cv2.waitKey(2)
-    if (key == ord("q")):
-        cv2.destroyAllWindows()
-        sys.exit()
-"""
