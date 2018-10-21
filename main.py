@@ -138,8 +138,16 @@ for dx in range(0,int(window[0]*xKmpp) - startingPos[0],int(window[0]*xKmpp/500)
         # print((int(v1[0]) , int(v1[1])))
         # print("\n")
         cv2.line(copy, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
-
     cv2.imshow('I should be doing my college apps right now',copy)
+    # unContracted = np.ones((window[0],window[1])) * 255
+    # still = shape2
+    # still[:] += startingPos[:]
+    # still = transformShape(still)
+    # for x in range(len(still)-1):
+    #     v1 = still[x]
+    #     v2 = still[x+1]
+    #     cv2.line(unContracted, (int(v2[0]) , int(v2[1])) , (int(v1[0]) , int(v1[1])) , (0,255,255) , 2)
+    #cv2.imshow("un-contracted image", unContracted)
     key = cv2.waitKey(2)
     if (key == ord("q")):
         cv2.destroyAllWindows()
